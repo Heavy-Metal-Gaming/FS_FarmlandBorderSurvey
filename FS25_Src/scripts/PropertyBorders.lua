@@ -659,10 +659,10 @@ function PropertyBorders:onToggleAction(actionName, inputValue, callbackState, i
     PropertyBorders.settings.visible = not PropertyBorders.settings.visible
 
     if PropertyBorders.settings.visible then
-        g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_OK, g_i18n:getText("propertyBorders_enabled"))
+        g_currentMission:showBlinkingWarning(g_i18n:getText("propertyBorders_enabled"), 2000)
         PropertyBorders:rebuildAllBorders()
     else
-        g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_INFO, g_i18n:getText("propertyBorders_disabled"))
+        g_currentMission:showBlinkingWarning(g_i18n:getText("propertyBorders_disabled"), 2000)
         -- Hide mesh borders
         if PropertyBorders.settings.renderMode == "mesh" then
             BorderRendererMesh.setVisible(false)

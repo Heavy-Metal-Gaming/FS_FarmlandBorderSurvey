@@ -214,7 +214,7 @@ local function placeWall(node, x1, z1, x2, z2, yBottom, yTop)
     local mx = (x1 + x2) * 0.5
     local mz = (z1 + z2) * 0.5
     local midY = (yBottom + yTop) * 0.5
-    local ry = math.atan2(dx, dz) + math.pi * 0.5
+    local ry = math.atan2(dz, dx)
 
     -- Centre the wall vertically between yBottom and yTop.
     setTranslation(node, mx, midY, mz)
