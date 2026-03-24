@@ -6,9 +6,11 @@
 --- Approach:  A flat quad is created programmatically via
 --- createPlaneShapeFrom2DContour(), then the additive_colorScale material
 --- from the game's glowShader is applied so we get colour-controllable
---- glow.  Long border segments are subdivided into short (~4 m) sub-
---- segments so each piece individually samples terrain height and follows
---- uneven ground, creating a continuous ribbon effect.
+--- glow.  Long border segments are subdivided into short (~2 m) sub-
+--- segments so each piece individually samples terrain height.  Each panel
+--- is oriented via setDirection() so it tilts with the terrain slope,
+--- creating a smooth continuous ribbon that follows uneven ground without
+--- visible stairstepping.
 ---
 --- Because these are real 3D shapes they participate in the normal depth
 --- pipeline — objects between the camera and the border occlude them.
@@ -17,7 +19,8 @@
 BorderRendererMesh = {}
 
 --- Height of the glow-cap strip at the top of the ribbon (meters).
-BorderRendererMesh.GLOW_CAP_HEIGHT = 0.06
+--- Kept very thin so it appears as a bright rail/bannister line.
+BorderRendererMesh.GLOW_CAP_HEIGHT = 0.025
 
 --- Maximum length of a single wall sub-segment (meters).
 --- Shorter = smoother terrain following but more draw calls.
@@ -152,9 +155,6 @@ function BorderRendererMesh.init(modDir)
         return false
     end
 
-    -- The quad is XZ-flat ⇒ we must rotate 90° around X to stand it up.
-    BorderRendererMesh.needsXRotation = true
-
     -- Set some sane defaults
     setVisibility(quadNode, false)
     setShaderParameter(quadNode, "lightControl", 1.0, 0, 0, 0, false)
@@ -210,48 +210,116 @@ local function cloneQuadDoubleSided(parentNode, r, g, b, glowIntensity)
     return front, back
 end
 
---- Position / rotate / scale a wall clone so it forms a vertical wall
---- between two world-space XZ points, from yBottom to yTop.
---- If backNode is provided, it is placed identically but rotated 180°
---- around Y so the wall is visible from both sides.
-local function placeWall(node, x1, z1, x2, z2, yBottom, yTop, backNode)
+--- Position / orient / scale a wall clone so it forms a terrain-following
+--- parallelogram between two world-space 3D endpoints.
+--- Uses setDirection() instead of setRotation() so the wall tilts with the
+--- terrain slope — eliminating visible stairstepping on uneven ground.
+--- If backNode is provided, it faces the opposite direction (double-sided).
+---@param node       number   Front quad clone
+---@param x1         number   Start X
+---@param z1         number   Start Z
+---@param x2         number   End X
+---@param z2         number   End Z
+---@param ground1    number   Terrain height at start
+---@param ground2    number   Terrain height at end
+---@param wallH      number   Constant wall height above ground (meters)
+---@param backNode   number|nil  Back-face clone (optional)
+local function placeWall(node, x1, z1, x2, z2, ground1, ground2, wallH, backNode)
     local dx = x2 - x1
     local dz = z2 - z1
-    local segLen = math.sqrt(dx * dx + dz * dz)
-    local wallH  = yTop - yBottom
+    local dY = ground2 - ground1
+    local hLen = math.sqrt(dx * dx + dz * dz)          -- horizontal distance
 
-    if segLen < 0.001 or wallH < 0.001 then
+    if hLen < 0.001 or wallH < 0.001 then
         setVisibility(node, false)
         if backNode then setVisibility(backNode, false) end
         return
     end
 
-    local mx = (x1 + x2) * 0.5
-    local mz = (z1 + z2) * 0.5
-    local midY = (yBottom + yTop) * 0.5
-    local ry = math.atan2(dz, dx)
+    -- 3D segment length (includes slope)
+    local seg3D = math.sqrt(dx * dx + dY * dY + dz * dz)
 
-    -- Centre the wall vertically between yBottom and yTop.
+    -- Wall normal — horizontal, perpendicular to segment direction
+    local nx = -dz / hLen
+    local nz =  dx / hLen
+
+    -- Tilted-up vector: cross(wallNormal, segDir3D) then normalise.
+    -- This gives the "up" direction that follows the terrain slope so the
+    -- bottom and top edges of the wall panel tilt with the ground.
+    local rawUpX = -(dx * dY) / hLen
+    local rawUpY =  hLen
+    local rawUpZ = -(dz * dY) / hLen
+    local upLen  = math.sqrt(rawUpX * rawUpX + rawUpY * rawUpY + rawUpZ * rawUpZ)
+    local upX = rawUpX / upLen
+    local upY = rawUpY / upLen
+    local upZ = rawUpZ / upLen
+
+    -- Centre position: midpoint of both endpoints, half-way up the wall
+    local mx   = (x1 + x2) * 0.5
+    local mz   = (z1 + z2) * 0.5
+    local midY = (ground1 + ground2) * 0.5 + wallH * 0.5
+
+    -- Orient the XZ-flat quad so its local Z-axis points "up the wall"
+    -- (tilted-up) and its local Y-axis points along the wall normal.
+    -- The engine auto-computes local X = cross(Y, Z) → segment direction.
     setTranslation(node, mx, midY, mz)
+    setDirection(node, upX, upY, upZ, nx, 0, nz)
+    setScale(node, seg3D, 1, wallH)
 
-    if BorderRendererMesh.needsXRotation then
-        setRotation(node, math.rad(90), ry, 0)
-        setScale(node, segLen, 1, wallH)
-    else
-        setRotation(node, 0, ry, 0)
-        setScale(node, segLen, wallH, 1)
-    end
-
-    -- Back face: same position/scale, rotated 180° around Y
+    -- Back face: same position/scale, flipped normal
     if backNode then
         setTranslation(backNode, mx, midY, mz)
-        if BorderRendererMesh.needsXRotation then
-            setRotation(backNode, math.rad(90), ry + math.pi, 0)
-            setScale(backNode, segLen, 1, wallH)
-        else
-            setRotation(backNode, 0, ry + math.pi, 0)
-            setScale(backNode, segLen, wallH, 1)
-        end
+        setDirection(backNode, upX, upY, upZ, -nx, 0, -nz)
+        setScale(backNode, seg3D, 1, wallH)
+    end
+end
+
+--- Place a horizontal cap strip at the top of the wall, visible from above
+--- and below. This creates a "+" cross-section with the vertical cap for a
+--- rounded rail/bannister appearance.  The strip lies in the terrain plane
+--- following the segment slope, with its narrow width perpendicular to the
+--- segment direction.
+---@param node       number   Front quad clone (faces up)
+---@param x1         number   Start X
+---@param z1         number   Start Z
+---@param x2         number   End X
+---@param z2         number   End Z
+---@param ground1    number   Terrain height at start
+---@param ground2    number   Terrain height at end
+---@param capWidth   number   Narrow width of the cap strip (meters)
+---@param topOffset  number   Height offset above ground for centre
+---@param backNode   number|nil  Back-face clone (optional, faces down)
+local function placeHorizontalCap(node, x1, z1, x2, z2, ground1, ground2, capWidth, topOffset, backNode)
+    local dx = x2 - x1
+    local dz = z2 - z1
+    local dY = ground2 - ground1
+    local hLen = math.sqrt(dx * dx + dz * dz)
+    if hLen < 0.001 then
+        setVisibility(node, false)
+        if backNode then setVisibility(backNode, false) end
+        return
+    end
+    local seg3D = math.sqrt(dx * dx + dY * dY + dz * dz)
+
+    -- Segment direction (normalised, 3D — follows terrain slope)
+    local sdx = dx / seg3D
+    local sdY = dY / seg3D
+    local sdz = dz / seg3D
+
+    local mx   = (x1 + x2) * 0.5
+    local mz   = (z1 + z2) * 0.5
+    local midY = (ground1 + ground2) * 0.5 + topOffset
+
+    -- Quad local Z → segment direction; local Y → up
+    -- Local X (auto) → perpendicular to segment → cap width axis
+    setTranslation(node, mx, midY, mz)
+    setDirection(node, sdx, sdY, sdz, 0, 1, 0)
+    setScale(node, capWidth, 1, seg3D)
+
+    if backNode then
+        setTranslation(backNode, mx, midY, mz)
+        setDirection(backNode, -sdx, -sdY, -sdz, 0, -1, 0)
+        setScale(backNode, capWidth, 1, seg3D)
     end
 end
 
@@ -282,7 +350,7 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
     local capR = math.min(1, r * 1.5 + 0.15)
     local capG = math.min(1, g * 1.5 + 0.15)
     local capB = math.min(1, b * 1.5 + 0.15)
-    local capGlow = 4.0
+    local capGlow = 8.0
     local capH = BorderRendererMesh.GLOW_CAP_HEIGHT
 
     local terrainNode = g_currentMission.terrainRootNode
@@ -315,26 +383,36 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
                 -- Sample terrain at each sub-segment endpoint
                 local ground1 = getTerrainHeightAtWorldPos(terrainNode, sx1, 0, sz1)
                 local ground2 = getTerrainHeightAtWorldPos(terrainNode, sx2, 0, sz2)
-                -- Use per-endpoint ground with overlap so adjacent segments merge smoothly
-                local lowestGround = math.min(ground1, ground2) - overlap
-                local highestTop   = math.max(ground1, ground2) + heightOffset
+                -- Push bottom below ground so adjacent segments overlap cleanly
+                local g1 = ground1 - overlap
+                local g2 = ground2 - overlap
 
-                -- Body wall (double-sided)
+                -- Body wall (double-sided, terrain-tilted)
                 local bodyFront, bodyBack = cloneQuadDoubleSided(farmTG, bodyR, bodyG, bodyB, bodyGlow)
                 if bodyFront then
-                    placeWall(bodyFront, sx1, sz1, sx2, sz2, lowestGround, highestTop, bodyBack)
+                    placeWall(bodyFront, sx1, sz1, sx2, sz2, g1, g2, heightOffset + overlap, bodyBack)
                     totalClones = totalClones + 2
                     if not loggedFirst then
                         loggedFirst = true
-                        Logging.info("PropertyBorders: first sub-seg (%.1f,%.1f)-(%.1f,%.1f) ground=%.1f top=%.1f node=%s needsXRot=%s",
-                            sx1, sz1, sx2, sz2, lowestGround, highestTop, tostring(bodyFront), tostring(BorderRendererMesh.needsXRotation))
+                        Logging.info("PropertyBorders: first sub-seg (%.1f,%.1f)-(%.1f,%.1f) g1=%.2f g2=%.2f h=%.2f node=%s",
+                            sx1, sz1, sx2, sz2, ground1, ground2, heightOffset, tostring(bodyFront))
                     end
                 end
 
-                -- Glow cap (double-sided)
+                -- Glow cap at top (double-sided, terrain-tilted) — vertical strip
                 local capFront, capBack = cloneQuadDoubleSided(farmTG, capR, capG, capB, capGlow)
                 if capFront then
-                    placeWall(capFront, sx1, sz1, sx2, sz2, highestTop - capH, highestTop + capH, capBack)
+                    local capBottom1 = ground1 + heightOffset - capH * 0.5
+                    local capBottom2 = ground2 + heightOffset - capH * 0.5
+                    placeWall(capFront, sx1, sz1, sx2, sz2, capBottom1, capBottom2, capH, capBack)
+                    totalClones = totalClones + 2
+                end
+
+                -- Horizontal cross-cap (visible from above) for round rail look
+                local hCapFront, hCapBack = cloneQuadDoubleSided(farmTG, capR, capG, capB, capGlow)
+                if hCapFront then
+                    placeHorizontalCap(hCapFront, sx1, sz1, sx2, sz2,
+                       ground1, ground2, capH, heightOffset, hCapBack)
                     totalClones = totalClones + 2
                 end
             end

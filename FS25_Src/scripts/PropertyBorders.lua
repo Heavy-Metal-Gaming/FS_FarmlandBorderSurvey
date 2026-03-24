@@ -40,6 +40,12 @@ PropertyBorders.CONTRACT_REFRESH_INTERVAL = 30000  -- 30 seconds in ms
 PropertyBorders.SIMPLIFY_TOLERANCE = 1.5           -- Douglas-Peucker tolerance in bitmap units
 PropertyBorders.STRIP_WIDTH = 0.3                  -- Width of mesh strips in meters
 
+-- Custom notification overlay state
+PropertyBorders.notificationText    = nil     -- text to display, or nil
+PropertyBorders.notificationEndTime = 0       -- g_time when it expires (ms)
+PropertyBorders.NOTIFICATION_DURATION = 2000  -- display duration (ms)
+PropertyBorders.NOTIFICATION_FADE    = 400    -- fade-out tail (ms)
+
 -- Settings menu items list (order matters for menu display)
 PropertyBorders.menuItems = {
     "visible",
@@ -628,6 +634,38 @@ end
 
 function PropertyBorders:draw()
     if not PropertyBorders.isInitialized then return end
+
+    -- ---- Custom notification overlay ----
+    if PropertyBorders.notificationText ~= nil then
+        local now = g_time or 0
+        local remaining = PropertyBorders.notificationEndTime - now
+        if remaining > 0 then
+            -- Compute alpha: full brightness, fading in the last NOTIFICATION_FADE ms
+            local alpha = 1.0
+            if remaining < PropertyBorders.NOTIFICATION_FADE then
+                alpha = remaining / PropertyBorders.NOTIFICATION_FADE
+            end
+            local fontSize = 0.035
+            local text = PropertyBorders.notificationText
+            -- Centred horizontally, upper third of screen
+            setTextAlignment(RenderText.ALIGN_CENTER)
+            setTextBold(true)
+            -- Shadow / outline for readability
+            setTextColor(0, 0, 0, alpha * 0.7)
+            renderText(0.501, 0.839, fontSize, text)
+            -- Main text
+            setTextColor(1, 1, 1, alpha)
+            renderText(0.5, 0.84, fontSize, text)
+            -- Reset
+            setTextBold(false)
+            setTextAlignment(RenderText.ALIGN_LEFT)
+            setTextColor(1, 1, 1, 1)
+        else
+            PropertyBorders.notificationText = nil
+        end
+    end
+
+    -- ---- Debug renderer draws every frame ----
     if not PropertyBorders.settings.visible then return end
 
     -- Debug renderer draws every frame
@@ -659,10 +697,12 @@ function PropertyBorders:onToggleAction(actionName, inputValue, callbackState, i
     PropertyBorders.settings.visible = not PropertyBorders.settings.visible
 
     if PropertyBorders.settings.visible then
-        g_currentMission:showBlinkingWarning(g_i18n:getText("propertyBorders_enabled"), 2000)
+        PropertyBorders.notificationText    = g_i18n:getText("propertyBorders_enabled")
+        PropertyBorders.notificationEndTime = (g_time or 0) + PropertyBorders.NOTIFICATION_DURATION
         PropertyBorders:rebuildAllBorders()
     else
-        g_currentMission:showBlinkingWarning(g_i18n:getText("propertyBorders_disabled"), 2000)
+        PropertyBorders.notificationText    = g_i18n:getText("propertyBorders_disabled")
+        PropertyBorders.notificationEndTime = (g_time or 0) + PropertyBorders.NOTIFICATION_DURATION
         -- Hide mesh borders
         if PropertyBorders.settings.renderMode == "mesh" then
             BorderRendererMesh.setVisible(false)
