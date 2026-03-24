@@ -19,8 +19,12 @@ BorderRendererDebug.TOP_GLOW_LINES = 3
 --- Vertical offset between each glow line at the top (meters).
 BorderRendererDebug.TOP_GLOW_SPACING = 0.02
 
+--- Maximum sub-segment length for terrain following (meters).
+BorderRendererDebug.MAX_SUB_SEGMENT_LENGTH = 4.0
+
 --- Draw all cached border ribbons for owned farmlands.
 --- Called every frame from PropertyBorders:draw() when renderMode == "debug".
+--- Long segments are subdivided so the lines closely follow terrain undulations.
 ---@param mod table The PropertyBorders mod instance
 function BorderRendererDebug.draw(mod)
     local color = mod.settings.color
@@ -36,6 +40,10 @@ function BorderRendererDebug.draw(mod)
     local fillLines = BorderRendererDebug.RIBBON_FILL_LINES
     local glowLines = BorderRendererDebug.TOP_GLOW_LINES
     local glowSpacing = BorderRendererDebug.TOP_GLOW_SPACING
+    local maxSubLen = BorderRendererDebug.MAX_SUB_SEGMENT_LENGTH
+    local heightOffset = mod.settings.height
+
+    local terrainNode = g_currentMission.terrainRootNode
 
     for farmlandId, polylines in pairs(mod.borderCache) do
         for _, polyline in ipairs(polylines) do
@@ -43,42 +51,59 @@ function BorderRendererDebug.draw(mod)
                 local p1 = polyline[i]
                 local p2 = polyline[i + 1]
 
-                local p1Ground = p1.yGround
-                local p1Top = p1.yTop
-                local p2Ground = p2.yGround
-                local p2Top = p2.yTop
+                -- Subdivide long segments for better terrain following
+                local dx = p2.x - p1.x
+                local dz = p2.z - p1.z
+                local segLen = math.sqrt(dx * dx + dz * dz)
+                local numSubs = math.max(1, math.ceil(segLen / maxSubLen))
 
-                -- Draw ribbon body: horizontal lines from ground to top
-                for f = 0, fillLines do
-                    local t = f / fillLines
-                    local y1 = p1Ground + (p1Top - p1Ground) * t
-                    local y2 = p2Ground + (p2Top - p2Ground) * t
+                for s = 0, numSubs - 1 do
+                    local t0 = s / numSubs
+                    local t1 = (s + 1) / numSubs
 
-                    -- Fade color: dimmer at ground, brighter at top
-                    local fade = 0.3 + 0.7 * t
-                    local lr = bodyR * fade
-                    local lg = bodyG * fade
-                    local lb = bodyB * fade
+                    local sx1 = p1.x + dx * t0
+                    local sz1 = p1.z + dz * t0
+                    local sx2 = p1.x + dx * t1
+                    local sz2 = p1.z + dz * t1
 
+                    -- Sample terrain at each sub-segment endpoint
+                    local ground1 = getTerrainHeightAtWorldPos(terrainNode, sx1, 0, sz1)
+                    local ground2 = getTerrainHeightAtWorldPos(terrainNode, sx2, 0, sz2)
+                    local top1 = ground1 + heightOffset
+                    local top2 = ground2 + heightOffset
+
+                    -- Draw ribbon body: horizontal lines from ground to top
+                    for f = 0, fillLines do
+                        local ft = f / fillLines
+                        local y1 = ground1 + (top1 - ground1) * ft
+                        local y2 = ground2 + (top2 - ground2) * ft
+
+                        -- Fade color: dimmer at ground, brighter at top
+                        local fade = 0.3 + 0.7 * ft
+                        local lr = bodyR * fade
+                        local lg = bodyG * fade
+                        local lb = bodyB * fade
+
+                        drawDebugLine(
+                            sx1, y1, sz1,  lr, lg, lb,
+                            sx2, y2, sz2,  lr, lg, lb
+                        )
+                    end
+
+                    -- Draw vertical edges at start of sub-segment
                     drawDebugLine(
-                        p1.x, y1, p1.z,  lr, lg, lb,
-                        p2.x, y2, p2.z,  lr, lg, lb
+                        sx1, ground1, sz1,  bodyR * 0.3, bodyG * 0.3, bodyB * 0.3,
+                        sx1, top1, sz1,     bodyR, bodyG, bodyB
                     )
-                end
 
-                -- Draw vertical edges at each vertex for ribbon structure
-                drawDebugLine(
-                    p1.x, p1Ground, p1.z,  bodyR * 0.3, bodyG * 0.3, bodyB * 0.3,
-                    p1.x, p1Top, p1.z,     bodyR, bodyG, bodyB
-                )
-
-                -- Draw top glow line (thicker = multiple offset lines)
-                for g = 0, glowLines - 1 do
-                    local yOff = g * glowSpacing
-                    drawDebugLine(
-                        p1.x, p1Top + yOff, p1.z,  glowR, glowG, glowB,
-                        p2.x, p2Top + yOff, p2.z,  glowR, glowG, glowB
-                    )
+                    -- Draw top glow line (thicker = multiple offset lines)
+                    for gl = 0, glowLines - 1 do
+                        local yOff = gl * glowSpacing
+                        drawDebugLine(
+                            sx1, top1 + yOff, sz1,  glowR, glowG, glowB,
+                            sx2, top2 + yOff, sz2,  glowR, glowG, glowB
+                        )
+                    end
                 end
             end
         end

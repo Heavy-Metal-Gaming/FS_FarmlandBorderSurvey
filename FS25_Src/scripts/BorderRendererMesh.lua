@@ -39,21 +39,58 @@ function BorderRendererMesh.init(modDir)
     BorderRendererMesh.sharedLoadReqId  = nil
 
     -- Step 1 -----------------------------------------------------------
-    -- Load a known-good glowShader shape from game data to borrow its
-    -- material.  The chainsawRingSelector uses glowShader.xml with the
-    -- additive_colorScale variation — exactly what we need.
-    local csRoot, csLoadId = g_i3DManager:loadSharedI3DFile(
-        "$data/handTools/shared/treeCutters/chainsawRingSelector.i3d",
-        false, false)
+    -- Load a shape that uses glowShader with additive_colorScale variation
+    -- so we can borrow its material.  We try the mod's own bundled i3d
+    -- first (most reliable), then fall back to the game's chainsaw ring.
+    local csRoot, csLoadId, failedReason
+    local loadedFrom = "(none)"
+
+    -- Try 1: mod's own bundled glowMaterialSource.i3d
+    local modI3d = modDir .. "i3d/glowMaterialSource.i3d"
+    Logging.info("PropertyBorders: Trying to load material from: %s", modI3d)
+    csRoot, csLoadId, failedReason = g_i3DManager:loadSharedI3DFile(modI3d, false, false)
+    Logging.info("PropertyBorders: mod i3d result: root=%s, loadId=%s, failedReason=%s",
+        tostring(csRoot), tostring(csLoadId), tostring(failedReason))
+    if csRoot ~= nil and csRoot ~= 0 then
+        loadedFrom = "mod bundled i3d"
+    end
+
+    -- Try 2: game's chainsawRingSelector
+    if csRoot == nil or csRoot == 0 then
+        Logging.info("PropertyBorders: Trying game chainsawRingSelector...")
+        csRoot, csLoadId, failedReason = g_i3DManager:loadSharedI3DFile(
+            "$data/handTools/shared/treeCutters/chainsawRingSelector.i3d", false, false)
+        Logging.info("PropertyBorders: chainsaw result: root=%s, loadId=%s, failedReason=%s",
+            tostring(csRoot), tostring(csLoadId), tostring(failedReason))
+        if csRoot ~= nil and csRoot ~= 0 then
+            loadedFrom = "game chainsawRingSelector"
+        end
+    end
+
+    -- Try 3: raw engine loadI3DFile as absolute path
+    if csRoot == nil or csRoot == 0 then
+        Logging.info("PropertyBorders: Trying raw loadI3DFile...")
+        local absPath = Utils.getFilename(modI3d, "")
+        Logging.info("PropertyBorders: resolved absolute path=%s", tostring(absPath))
+        local rawNode = loadI3DFile(absPath or modI3d, false, false, false)
+        Logging.info("PropertyBorders: raw loadI3DFile result: %s", tostring(rawNode))
+        if rawNode ~= nil and rawNode ~= 0 then
+            csRoot = rawNode
+            csLoadId = nil
+            loadedFrom = "raw loadI3DFile"
+        end
+    end
 
     if csRoot == nil or csRoot == 0 then
-        Logging.warning("PropertyBorders: failed to load chainsawRingSelector.i3d for material")
+        Logging.warning("PropertyBorders: ALL i3d load attempts failed")
         return false
     end
 
+    Logging.info("PropertyBorders: loaded material source from '%s'", loadedFrom)
+
     local csShape = getChildAt(csRoot, 0)
     if csShape == nil or csShape == 0 then
-        Logging.warning("PropertyBorders: chainsawRingSelector has no child shape")
+        Logging.warning("PropertyBorders: loaded i3d has no child shape")
         delete(csRoot)
         if csLoadId then g_i3DManager:releaseSharedI3DFile(csLoadId) end
         return false
@@ -61,10 +98,11 @@ function BorderRendererMesh.init(modDir)
 
     -- Get the additive_colorScale glowShader material
     local glowMat = getMaterial(csShape, 0)
-    Logging.info("PropertyBorders: glowMat=%s from chainsawRingSelector", tostring(glowMat))
+    Logging.info("PropertyBorders: glowMat=%s from %s, shape=%s",
+        tostring(glowMat), loadedFrom, tostring(csShape))
 
     if glowMat == nil or glowMat == 0 then
-        Logging.warning("PropertyBorders: failed to get material from chainsawRingSelector")
+        Logging.warning("PropertyBorders: failed to get material from loaded i3d")
         delete(csRoot)
         if csLoadId then g_i3DManager:releaseSharedI3DFile(csLoadId) end
         return false

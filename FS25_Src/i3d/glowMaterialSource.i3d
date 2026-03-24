@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+    glowMaterialSource.i3d
+    Provides a glowShader additive_colorScale material for property border ribbons.
+    Uses the game's compiled shape geometry (ring) with glowShader variation.
+    At runtime the Lua code only borrows the material via getMaterial() and
+    applies it to programmatically-created quad shapes.
+-->
+<i3D name="glowMaterialSource" version="1.6"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation="http://i3d.giants.ch/schema/i3d-1.6.xsd">
+
+  <Files>
+    <File fileId="1" filename="solidWhite.png" />
+    <File fileId="2" filename="$data/shaders/glowShader.xml" />
+  </Files>
+
+  <Materials>
+    <Material name="glowBorderMat" materialId="1" specularColor="0 0 0"
+              alphaBlending="true" customShaderId="2"
+              customShaderVariation="additive_colorScale">
+      <CustomParameter name="colorScale" value="0 1 0"/>
+      <CustomParameter name="lightControl" value="4"/>
+      <Emissivemap fileId="1"/>
+    </Material>
+  </Materials>
+
+  <Shapes externalShapesFile="glowMaterialSource.i3d.shapes">
+  </Shapes>
+
+  <Scene>
+    <Shape name="glowSourceShape" translation="0 0 0" shapeId="1"
+           castsShadows="false" receiveShadows="false"
+           materialIds="1" clipDistance="500" nodeId="1"/>
+  </Scene>
+
+</i3D>
