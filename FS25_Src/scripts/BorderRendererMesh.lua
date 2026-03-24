@@ -345,8 +345,9 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
     BorderRendererMesh.farmlandNodes[farmlandId] = farmTG
 
     local r, g, b = color[1], color[2], color[3]
-    local bodyR, bodyG, bodyB = r * 0.6, g * 0.6, b * 0.6
-    local bodyGlow = 1.5
+    -- 40% opacity body: dim color + low glow
+    local bodyR, bodyG, bodyB = r * 0.25, g * 0.25, b * 0.25
+    local bodyGlow = 0.6
     local capR = math.min(1, r * 1.5 + 0.15)
     local capG = math.min(1, g * 1.5 + 0.15)
     local capB = math.min(1, b * 1.5 + 0.15)
@@ -442,12 +443,41 @@ function BorderRendererMesh.removeAll()
         BorderRendererMesh.removeForFarmland(fid)
     end
     BorderRendererMesh.farmlandNodes = {}
+    BorderRendererMesh.baseGlowValues = {}
 end
 
 --- Toggle visibility of all border meshes.
 function BorderRendererMesh.setVisible(visible)
     if BorderRendererMesh.rootNode ~= nil and entityExists(BorderRendererMesh.rootNode) then
         setVisibility(BorderRendererMesh.rootNode, visible)
+    end
+end
+
+--- Multiply the lightControl (glow intensity) of every existing clone by
+--- the given factor.  Used to dim borders to 15% when HUD is hidden.
+--- Stores base glow values in a lookup table (engine nodes aren't Lua tables).
+BorderRendererMesh.baseGlowValues = {}  -- nodeId -> base lightControl value
+
+function BorderRendererMesh.setGlowMultiplier(multiplier)
+    if BorderRendererMesh.rootNode == nil then return end
+    if BorderRendererMesh.farmlandNodes == nil then return end
+
+    for _, farmTG in pairs(BorderRendererMesh.farmlandNodes) do
+        if farmTG ~= nil and entityExists(farmTG) then
+            local n = getNumOfChildren(farmTG)
+            for ci = 0, n - 1 do
+                local child = getChildAt(farmTG, ci)
+                if child ~= nil and getHasShaderParameter(child, "lightControl") then
+                    -- Store base glow on first encounter
+                    if BorderRendererMesh.baseGlowValues[child] == nil then
+                        local curX = getShaderParameter(child, "lightControl")
+                        BorderRendererMesh.baseGlowValues[child] = curX
+                    end
+                    local base = BorderRendererMesh.baseGlowValues[child]
+                    setShaderParameter(child, "lightControl", base * multiplier, 0, 0, 0, false)
+                end
+            end
+        end
     end
 end
 

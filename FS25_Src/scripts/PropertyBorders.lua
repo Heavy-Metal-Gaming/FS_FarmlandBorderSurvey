@@ -45,6 +45,11 @@ PropertyBorders.notificationText    = nil     -- text to display, or nil
 PropertyBorders.notificationEndTime = 0       -- g_time when it expires (ms)
 PropertyBorders.NOTIFICATION_DURATION = 2000  -- display duration (ms)
 PropertyBorders.NOTIFICATION_FADE    = 400    -- fade-out tail (ms)
+-- HUD-style background overlays (created lazily from g_overlayManager)
+PropertyBorders.notifBgScale         = nil    -- center stretch overlay
+PropertyBorders.notifBgLeft          = nil    -- left cap overlay
+PropertyBorders.notifBgRight         = nil    -- right cap overlay
+PropertyBorders.isBorderDimmed       = false  -- true when HUD hidden and glow reduced
 
 -- Settings menu items list (order matters for menu display)
 PropertyBorders.menuItems = {
@@ -206,7 +211,6 @@ function PropertyBorders.saveSettings()
     setXMLFloat(xmlFile,  key .. ".contractColor#g",      s.contractColor[2])
     setXMLFloat(xmlFile,  key .. ".contractColor#b",      s.contractColor[3])
     setXMLFloat(xmlFile,  key .. ".contractColor#a",      s.contractColor[4])
-
     saveXMLFile(xmlFile)
     delete(xmlFile)
 end
@@ -252,10 +256,7 @@ function PropertyBorders.loadSettings()
         s.contractColor[3] = getXMLFloat(xmlFile, key .. ".contractColor#b") or 0.1
         s.contractColor[4] = getXMLFloat(xmlFile, key .. ".contractColor#a") or 0.5
     end
-
     delete(xmlFile)
-
-    Logging.info("PropertyBorders: Settings loaded from '%s'", filePath)
 end
 
 ---------------------------------------------------------------------------
@@ -586,6 +587,20 @@ function PropertyBorders:deleteMap()
     -- Clean up mesh renderer
     BorderRendererMesh.destroy()
 
+    -- Clean up notification overlays
+    if PropertyBorders.notifBgScale ~= nil then
+        PropertyBorders.notifBgScale:delete()
+        PropertyBorders.notifBgScale = nil
+    end
+    if PropertyBorders.notifBgLeft ~= nil then
+        PropertyBorders.notifBgLeft:delete()
+        PropertyBorders.notifBgLeft = nil
+    end
+    if PropertyBorders.notifBgRight ~= nil then
+        PropertyBorders.notifBgRight:delete()
+        PropertyBorders.notifBgRight = nil
+    end
+
     -- Clear caches
     PropertyBorders.borderCache = {}
     PropertyBorders.contractBorderCache = {}
@@ -635,32 +650,37 @@ end
 function PropertyBorders:draw()
     if not PropertyBorders.isInitialized then return end
 
+    -- Detect whether the game HUD is hidden (V key or photo mode)
+    local hudHidden = g_noHudModeEnabled or (g_currentMission.hud ~= nil and not g_currentMission.hud.isVisible)
+
+    -- ---- HUD-hidden border dimming (mesh mode) ----
+    -- When the HUD is hidden, reduce border glow to 15% of normal.
+    if PropertyBorders.settings.renderMode == "mesh" and PropertyBorders.settings.visible then
+        local wantDimmed = hudHidden
+        if wantDimmed ~= PropertyBorders.isBorderDimmed then
+            PropertyBorders.isBorderDimmed = wantDimmed
+            BorderRendererMesh.setGlowMultiplier(wantDimmed and 0.20 or 1.0)
+        end
+    end
+
     -- ---- Custom notification overlay ----
-    if PropertyBorders.notificationText ~= nil then
+    -- Suppress when HUD is hidden
+    if PropertyBorders.notificationText ~= nil and not hudHidden then
         local now = g_time or 0
         local remaining = PropertyBorders.notificationEndTime - now
         if remaining > 0 then
-            -- Compute alpha: full brightness, fading in the last NOTIFICATION_FADE ms
+            -- Compute alpha with fade-out at the end
             local alpha = 1.0
             if remaining < PropertyBorders.NOTIFICATION_FADE then
                 alpha = remaining / PropertyBorders.NOTIFICATION_FADE
             end
-            local fontSize = 0.035
-            local text = PropertyBorders.notificationText
-            -- Centred horizontally, upper third of screen
-            setTextAlignment(RenderText.ALIGN_CENTER)
-            setTextBold(true)
-            -- Shadow / outline for readability
-            setTextColor(0, 0, 0, alpha * 0.7)
-            renderText(0.501, 0.839, fontSize, text)
-            -- Main text
-            setTextColor(1, 1, 1, alpha)
-            renderText(0.5, 0.84, fontSize, text)
-            -- Reset
-            setTextBold(false)
-            setTextAlignment(RenderText.ALIGN_LEFT)
-            setTextColor(1, 1, 1, 1)
+            PropertyBorders.drawNotification(PropertyBorders.notificationText, alpha)
         else
+            PropertyBorders.notificationText = nil
+        end
+    elseif PropertyBorders.notificationText ~= nil and hudHidden then
+        -- still tick the timer so it expires even while HUD is hidden
+        if (g_time or 0) >= PropertyBorders.notificationEndTime then
             PropertyBorders.notificationText = nil
         end
     end
@@ -670,8 +690,11 @@ function PropertyBorders:draw()
 
     -- Debug renderer draws every frame
     if PropertyBorders.settings.renderMode == "debug" then
+        -- When HUD hidden, reduce debug line alpha to 15%
+        local debugAlphaMul = hudHidden and 0.20 or 1.0
+
         -- Draw owned borders
-        BorderRendererDebug.draw(PropertyBorders)
+        BorderRendererDebug.draw(PropertyBorders, debugAlphaMul)
 
         -- Draw contract borders with contract color
         if PropertyBorders.settings.displayScope == "contracted" or
@@ -681,13 +704,80 @@ function PropertyBorders:draw()
 
             local savedCache = PropertyBorders.borderCache
             PropertyBorders.borderCache = PropertyBorders.contractBorderCache
-            BorderRendererDebug.draw(PropertyBorders)
+            BorderRendererDebug.draw(PropertyBorders, debugAlphaMul)
             PropertyBorders.borderCache = savedCache
 
             PropertyBorders.settings.color = savedColor
         end
     end
     -- Mesh renderer is persistent, no per-frame draw needed
+end
+
+---------------------------------------------------------------------------
+-- Notification drawing — HUD-style overlay box (same pattern as game's TopNotification)
+---------------------------------------------------------------------------
+function PropertyBorders.ensureNotifOverlays()
+    if PropertyBorders.notifBgScale ~= nil then
+        return true
+    end
+    if g_overlayManager == nil then
+        return false
+    end
+    -- Use the game's registered HUD overlay slices for a standard look
+    PropertyBorders.notifBgScale = g_overlayManager:createOverlay("gui.gameInfo_middle", 0, 0, 0, 0)
+    PropertyBorders.notifBgLeft  = g_overlayManager:createOverlay("gui.gameInfo_left",   0, 0, 0, 0)
+    PropertyBorders.notifBgRight = g_overlayManager:createOverlay("gui.gameInfo_right",  0, 0, 0, 0)
+    if PropertyBorders.notifBgScale == nil then
+        Logging.warning("PropertyBorders: Failed to create HUD overlay from g_overlayManager")
+        return false
+    end
+    return true
+end
+
+function PropertyBorders.drawNotification(text, alpha)
+    local fontSize = 0.028
+    local posY = 0.96   -- near the top of the screen
+
+    -- Near-white slightly gray text color
+    local textR, textG, textB = 0.92, 0.92, 0.92
+
+    -- HUD background box with left/right caps
+    if PropertyBorders.ensureNotifOverlays() then
+        local textWidth = getTextWidth(fontSize, text)
+        local r, g, b, a = unpack(HUD.COLOR.BACKGROUND)
+        a = a * alpha
+
+        local padX   = 0.018
+        local padY   = 0.010
+        local capW   = 0.005   -- left/right cap width
+        local boxW   = textWidth + padX * 2
+        local boxH   = fontSize + padY * 2
+        local boxX   = 0.5 - boxW * 0.5
+        local boxY   = posY - padY
+
+        -- Left cap
+        PropertyBorders.notifBgLeft:setColor(r, g, b, a)
+        PropertyBorders.notifBgLeft:setDimension(capW, boxH)
+        PropertyBorders.notifBgLeft:setPosition(boxX - capW, boxY)
+        PropertyBorders.notifBgLeft:render()
+        -- Center stretch
+        PropertyBorders.notifBgScale:setColor(r, g, b, a)
+        PropertyBorders.notifBgScale:setDimension(boxW, boxH)
+        PropertyBorders.notifBgScale:setPosition(boxX, boxY)
+        PropertyBorders.notifBgScale:render()
+        -- Right cap
+        PropertyBorders.notifBgRight:setColor(r, g, b, a)
+        PropertyBorders.notifBgRight:setDimension(capW, boxH)
+        PropertyBorders.notifBgRight:setPosition(boxX + boxW, boxY)
+        PropertyBorders.notifBgRight:render()
+    end
+
+    setTextAlignment(RenderText.ALIGN_CENTER)
+    setTextBold(false)
+    setTextColor(textR, textG, textB, alpha)
+    renderText(0.5, posY, fontSize, text)
+    setTextAlignment(RenderText.ALIGN_LEFT)
+    setTextColor(1, 1, 1, 1)
 end
 
 ---------------------------------------------------------------------------
@@ -699,7 +789,14 @@ function PropertyBorders:onToggleAction(actionName, inputValue, callbackState, i
     if PropertyBorders.settings.visible then
         PropertyBorders.notificationText    = g_i18n:getText("propertyBorders_enabled")
         PropertyBorders.notificationEndTime = (g_time or 0) + PropertyBorders.NOTIFICATION_DURATION
+        PropertyBorders.isBorderDimmed = false  -- force re-evaluation for new clones
         PropertyBorders:rebuildAllBorders()
+        -- If HUD is already hidden, immediately dim the freshly-created clones
+        local hudHidden = g_noHudModeEnabled or (g_currentMission.hud ~= nil and not g_currentMission.hud.isVisible)
+        if hudHidden and PropertyBorders.settings.renderMode == "mesh" then
+            PropertyBorders.isBorderDimmed = true
+            BorderRendererMesh.setGlowMultiplier(0.20)
+        end
     else
         PropertyBorders.notificationText    = g_i18n:getText("propertyBorders_disabled")
         PropertyBorders.notificationEndTime = (g_time or 0) + PropertyBorders.NOTIFICATION_DURATION

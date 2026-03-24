@@ -26,16 +26,20 @@ BorderRendererDebug.MAX_SUB_SEGMENT_LENGTH = 4.0
 --- Called every frame from PropertyBorders:draw() when renderMode == "debug".
 --- Long segments are subdivided so the lines closely follow terrain undulations.
 ---@param mod table The PropertyBorders mod instance
-function BorderRendererDebug.draw(mod)
+---@param alphaMul number|nil  Optional multiplier for all colors (0-1). Used to dim when HUD hidden.
+function BorderRendererDebug.draw(mod, alphaMul)
+    local mul = alphaMul or 1.0
     local color = mod.settings.color
     local r, g, b, a = color[1], color[2], color[3], color[4] or 0.4
+    -- Apply 40% base opacity + any HUD-hidden multiplier
+    local opacity = 0.4 * mul
     -- Dimmed color for the ribbon body (more transparent)
-    local bodyR, bodyG, bodyB = r * 0.5, g * 0.5, b * 0.5
+    local bodyR, bodyG, bodyB = r * 0.5 * opacity, g * 0.5 * opacity, b * 0.5 * opacity
 
     -- Bright color for the top glow line
-    local glowR = math.min(1.0, r * 1.4 + 0.1)
-    local glowG = math.min(1.0, g * 1.4 + 0.1)
-    local glowB = math.min(1.0, b * 1.4 + 0.1)
+    local glowR = math.min(1.0, r * 1.4 + 0.1) * mul
+    local glowG = math.min(1.0, g * 1.4 + 0.1) * mul
+    local glowB = math.min(1.0, b * 1.4 + 0.1) * mul
 
     local fillLines = BorderRendererDebug.RIBBON_FILL_LINES
     local glowLines = BorderRendererDebug.TOP_GLOW_LINES
