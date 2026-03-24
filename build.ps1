@@ -95,7 +95,7 @@ function Invoke-Build {
     New-Item -ItemType Directory -Path $staging -Force | Out-Null
 
     # Copy mod contents (exclude dev-only files)
-    $excludePatterns = @("*.bak", "*.log", "icon_PropertyBorders.png")
+    $excludePatterns = @("*.bak", "*.log", "icon_PropertyBorders.png", "solidWhite.png")
 
     Get-ChildItem -Path $srcDir -Force | ForEach-Object {
         $skip = $false
@@ -109,6 +109,11 @@ function Invoke-Build {
                 Copy-Item $_.FullName -Destination (Join-Path $staging $_.Name) -Force
             }
         }
+    }
+
+    # Remove excluded files that were copied inside subdirectories
+    foreach ($pattern in $excludePatterns) {
+        Get-ChildItem -Path $staging -Recurse -Filter $pattern | Remove-Item -Force
     }
 
     # Create zip using .NET ZipFile to ensure forward-slash paths (GIANTS Engine requires it)
