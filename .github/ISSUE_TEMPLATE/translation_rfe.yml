@@ -1,0 +1,44 @@
+name: Translation Request
+description: Offer to add or update a translation
+labels: ["translation", "rfe"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping translate Property Borders! Please let us know which language you'd like to contribute.
+
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: The language you want to translate to (e.g., French, Polish, Japanese).
+      placeholder: "French"
+    validations:
+      required: true
+
+  - type: input
+    id: language_code
+    attributes:
+      label: Language Code
+      description: The FS25 language code (see `l10n_template.xml` for the full list).
+      placeholder: "fr"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - New translation (language not yet available)
+        - Update / correction to existing translation
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any additional context (e.g., regional dialect, partial translation, questions about specific strings).
+    validations:
+      required: false

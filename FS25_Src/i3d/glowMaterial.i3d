@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    glowMaterial.i3d - Material source for property border strips.
+    
+    This i3d provides a semi-transparent unlit material that is extracted at runtime
+    and applied to procedurally generated border mesh shapes.
+    
+    NOTE: This file may need to be re-exported from GIANTS Editor 10+ if the shader
+    path or format is not compatible with your game version. Open it in the editor,
+    adjust the material properties as needed, and re-save.
+    
+    The Lua code loads this file, extracts the material from the first child shape,
+    and applies it to all border strip meshes. If this file fails to load, the mod
+    falls back to debug line rendering automatically.
+-->
+<i3D name="glowMaterial" version="1.6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://i3d.giants.ch/schema/i3d-1.6.xsd">
+    <Asset>
+        <Export program="GIANTS Editor 10.0.3" version="10.0.3" />
+    </Asset>
+
+    <Files>
+        <File fileId="1" filename="$data/shaders/unlitShader.xml" />
+    </Files>
+
+    <Materials>
+        <Material name="borderGlowMat" materialId="1" alphaBlending="true" customShaderId="1"
+                  depthMapRendering="false" depthWrite="false">
+            <Emissivecolor r="1" g="1" b="1" a="0.3" />
+        </Material>
+    </Materials>
+
+    <Shapes>
+        <IndexedTriangleSet name="glowPlaneShape" shapeId="1" bvCenter="0 0 0" bvRadius="0.7071">
+            <Vertices count="4" normal="true" uv0="true">
+                <v p="-0.5 0 -0.5" n="0 1 0" t0="0 0" />
+                <v p="0.5 0 -0.5" n="0 1 0" t0="1 0" />
+                <v p="0.5 0 0.5" n="0 1 0" t0="1 1" />
+                <v p="-0.5 0 0.5" n="0 1 0" t0="0 1" />
+            </Vertices>
+            <Triangles count="2">
+                <t vi="0 1 2" />
+                <t vi="0 2 3" />
+            </Triangles>
+            <Subsets count="1">
+                <Subset firstIndex="0" numIndices="6" />
+            </Subsets>
+        </IndexedTriangleSet>
+    </Shapes>
+
+    <Scene>
+        <Shape name="glowPlane" nodeId="1" shapeId="1" materialIds="1"
+               translation="0 0 0" rotation="0 0 0" scale="1 1 1"
+               castsShadows="false" receiveShadows="false"
+               nonRenderable="false" clipDistance="500" objectMask="65535" />
+    </Scene>
+</i3D>

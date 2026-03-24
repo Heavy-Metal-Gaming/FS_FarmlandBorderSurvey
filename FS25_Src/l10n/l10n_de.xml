@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10n>
+    <texts>
+        <!-- Eingabeaktionen (FS25 erfordert input_ Präfix für Aktionsnamen) -->
+        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Grundstücksgrenzen umschalten" />
+
+        <!-- Umschalt-Benachrichtigungen -->
+        <text name="propertyBorders_enabled" text="Grundstücksgrenzen: EIN" />
+        <text name="propertyBorders_disabled" text="Grundstücksgrenzen: AUS" />
+
+        <!-- Einstellungsdialog -->
+        <text name="propertyBorders_settingsTitle" text="Grundstücksgrenzen-Einstellungen" />
+        <text name="propertyBorders_renderMode" text="Darstellungsmodus" />
+        <text name="propertyBorders_renderMode_mesh" text="Mesh" />
+        <text name="propertyBorders_renderMode_debug" text="Debug-Linien" />
+        <text name="propertyBorders_height" text="Grenzhöhe" />
+        <text name="propertyBorders_color" text="Grenzfarbe" />
+        <text name="propertyBorders_chooseColor" text="Farbe wählen..." />
+        <text name="propertyBorders_apply" text="Übernehmen" />
+        <text name="propertyBorders_cancel" text="Abbrechen" />
+
+        <!-- Statusmeldungen -->
+        <text name="propertyBorders_scanning" text="Grundstücksgrenzen werden gescannt..." />
+        <text name="propertyBorders_scanComplete" text="Grenzen für %d Grundstücke gefunden" />
+        <text name="propertyBorders_noFarmlands" text="Keine eigenen Grundstücke gefunden" />
+        <text name="propertyBorders_settingsApplied" text="Grenzeinstellungen übernommen" />
+        <text name="propertyBorders_colorApplied" text="Grenzfarbe aktualisiert" />
+
+        <!-- Fehlermeldungen -->
+        <text name="propertyBorders_error_noFarmlandManager" text="Grundstücksgrenzen: FarmlandManager nicht verfügbar" />
+        <text name="propertyBorders_error_materialLoadFailed" text="Grundstücksgrenzen: Leuchtmaterial konnte nicht geladen werden, Rückfall auf Debug-Linien" />
+        <text name="propertyBorders_error_meshFallback" text="Grundstücksgrenzen: Mesh-Erstellung fehlgeschlagen, Debug-Linien-Modus wird verwendet" />
+
+        <!-- Anzeigebereich -->
+        <text name="propertyBorders_showOwned" text="Grenzen anzeigen" />
+        <text name="propertyBorders_showOwnedOnly" text="Nur eigene" />
+        <text name="propertyBorders_showContracted" text="Eigene + Vertragsgebundene" />
+        <text name="propertyBorders_showAll" text="Alle Grundstücke" />
+
+        <!-- Vertragsgrenzen -->
+        <text name="propertyBorders_contractBorderInfo" text="Grenzen für %d Vertragsgrundstücke angezeigt" />
+        <text name="propertyBorders_contractColor" text="Vertragsgrenze Farbe" />
+        <text name="propertyBorders_contractColorDefault" text="Vertrag-Hervorhebungsfarbe wird verwendet" />
+
+        <!-- Farbenblindmodus -->
+        <text name="propertyBorders_colorblindMode" text="Farbenblindmodus" />
+        <text name="propertyBorders_colorblindActive" text="Farbenblind-sichere Farben aktiv" />
+        <text name="propertyBorders_colorblindInactive" text="Standardfarben aktiv" />
+
+        <!-- Höhenbezeichnungen -->
+        <!-- %s = vorformatierte Zahl (Dezimal-/Tausendertrennzeichen durch Engine-i18n) -->
+        <text name="propertyBorders_heightUnit" text="%s m" />
+
+        <!-- Einstellungsmenü-Bezeichnungen -->
+        <text name="propertyBorders_setting_visible" text="Grenzen anzeigen" />
+        <text name="propertyBorders_setting_renderMode" text="Darstellungsmodus" />
+        <text name="propertyBorders_setting_displayScope" text="Anzeigebereich" />
+        <text name="propertyBorders_setting_height" text="Grenzhöhe" />
+        <text name="propertyBorders_setting_colorPreset" text="Grenzfarbe" />
+
+        <!-- Einstellungsmenü-Tooltips -->
+        <text name="propertyBorders_tooltip_visible" text="Sichtbarkeit der Grundstücksgrenzen ein-/ausschalten." />
+        <text name="propertyBorders_tooltip_renderMode" text="Debug-Linien sind immer sichtbar. Mesh erzeugt 3D-Geometrie." />
+        <text name="propertyBorders_tooltip_displayScope" text="Für welche Grundstücke Grenzen angezeigt werden." />
+        <text name="propertyBorders_tooltip_height" text="Höhe über dem Gelände für Grenzlinien." />
+        <text name="propertyBorders_tooltip_colorPreset" text="Farbe der Grenzlinien wählen." />
+
+        <!-- Farbvoreinstellungen -->
+        <text name="propertyBorders_color_cyan" text="Cyan" />
+        <text name="propertyBorders_color_green" text="Grün" />
+        <text name="propertyBorders_color_red" text="Rot" />
+        <text name="propertyBorders_color_yellow" text="Gelb" />
+        <text name="propertyBorders_color_orange" text="Orange" />
+        <text name="propertyBorders_color_purple" text="Lila" />
+        <text name="propertyBorders_color_white" text="Weiß" />
+    </texts>
+</l10n>

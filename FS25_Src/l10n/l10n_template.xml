@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+    FS25_PropertyBorders Translation Template
+    ==========================================
+    
+    HOW TO ADD YOUR LANGUAGE:
+    
+    1. Copy this file and rename it to l10n_XX.xml where XX is your language code.
+       Supported codes (matching FS25 game languages):
+         br = Brazilian Portuguese    cs = Czech             ct = Chinese Traditional
+         cz = Czech (alt)             da = Danish            de = German
+         ea = Spanish (Latin America) en = English           es = Spanish
+         fc = French Canadian         fi = Finnish           fr = French
+         hu = Hungarian               id = Indonesian        it = Italian
+         jp = Japanese                kr = Korean            nl = Dutch
+         no = Norwegian               pl = Polish            pt = Portuguese
+         ro = Romanian                ru = Russian           sv = Swedish
+         tr = Turkish                 uk = Ukrainian         vi = Vietnamese
+    
+    2. Translate every text="" value below to your language.
+       Do NOT change the name="" attributes — they are code keys.
+    
+    3. Preserve format specifiers exactly as-is:
+         %d   = integer number (e.g., farmland count)
+         %s   = string (e.g., a name, or a pre-formatted number)
+    
+       NOTE ON NUMBER FORMATTING (i18n):
+         Decimal and thousands separators vary by locale (e.g., 1,000.5 vs 1.000,5).
+         The mod uses g_i18n:formatNumber() to format all player-facing numbers
+         BEFORE inserting them into translated strings. This means height values
+         arrive as pre-formatted strings via %s, not raw floats. You do NOT need
+         to worry about decimal separators in your translation — just place %s
+         where the number should appear.
+    
+    4. Place your completed file in the l10n/ folder alongside the existing files.
+       The game will automatically detect and use it when the player's language matches.
+    
+    5. (Optional) Submit your translation as a pull request or send it to the mod author!
+    
+    IMPORTANT:
+    - File encoding MUST be UTF-8.
+    - Do not add or remove <text> entries — the code expects all keys to exist.
+    - If you are unsure about a translation, leave the English value; the game
+      falls back to English for any missing keys.
+-->
+<l10n>
+    <texts>
+        <!-- ===== Input Action Labels (shown in key binding settings) ===== -->
+        <!-- FS25 requires input_ prefix for action display names -->
+        <text name="input_PROPERTY_BORDERS_TOGGLE" text="" />
+
+        <!-- ===== Toggle HUD Notifications ===== -->
+        <text name="propertyBorders_enabled" text="" />
+        <text name="propertyBorders_disabled" text="" />
+
+        <!-- ===== Settings Dialog ===== -->
+        <text name="propertyBorders_settingsTitle" text="" />
+        <text name="propertyBorders_renderMode" text="" />
+        <text name="propertyBorders_renderMode_mesh" text="" />
+        <text name="propertyBorders_renderMode_debug" text="" />
+        <text name="propertyBorders_height" text="" />
+        <text name="propertyBorders_color" text="" />
+        <text name="propertyBorders_chooseColor" text="" />
+        <text name="propertyBorders_apply" text="" />
+        <text name="propertyBorders_cancel" text="" />
+        <text name="propertyBorders_showOwned" text="" />
+        <text name="propertyBorders_showOwnedOnly" text="" />
+        <text name="propertyBorders_showContracted" text="" />
+        <text name="propertyBorders_showAll" text="" />
+
+        <!-- ===== Contract Borders ===== -->
+        <!-- %d = number of contracted farmlands -->
+        <text name="propertyBorders_contractBorderInfo" text="" />
+        <text name="propertyBorders_contractColor" text="" />
+        <text name="propertyBorders_contractColorDefault" text="" />
+
+        <!-- ===== Colorblind Mode ===== -->
+        <text name="propertyBorders_colorblindMode" text="" />
+        <text name="propertyBorders_colorblindActive" text="" />
+        <text name="propertyBorders_colorblindInactive" text="" />
+
+        <!-- ===== Status / Log Messages ===== -->
+        <text name="propertyBorders_scanning" text="" />
+        <!-- %d = number of farmlands -->
+        <text name="propertyBorders_scanComplete" text="" />
+        <text name="propertyBorders_noFarmlands" text="" />
+        <text name="propertyBorders_settingsApplied" text="" />
+        <text name="propertyBorders_colorApplied" text="" />
+
+        <!-- ===== Error Messages ===== -->
+        <text name="propertyBorders_error_noFarmlandManager" text="" />
+        <text name="propertyBorders_error_materialLoadFailed" text="" />
+        <text name="propertyBorders_error_meshFallback" text="" />
+
+        <!-- ===== Units / Formatting ===== -->
+        <!-- %s = pre-formatted number (decimal separator handled by engine) -->
+        <text name="propertyBorders_heightUnit" text="" />
+
+        <!-- ===== Settings Menu Labels (injected into Game Settings) ===== -->
+        <text name="propertyBorders_setting_visible" text="" />
+        <text name="propertyBorders_setting_renderMode" text="" />
+        <text name="propertyBorders_setting_displayScope" text="" />
+        <text name="propertyBorders_setting_height" text="" />
+        <text name="propertyBorders_setting_colorPreset" text="" />
+
+        <!-- ===== Settings Menu Tooltips ===== -->
+        <text name="propertyBorders_tooltip_visible" text="" />
+        <text name="propertyBorders_tooltip_renderMode" text="" />
+        <text name="propertyBorders_tooltip_displayScope" text="" />
+        <text name="propertyBorders_tooltip_height" text="" />
+        <text name="propertyBorders_tooltip_colorPreset" text="" />
+
+        <!-- ===== Color Preset Names ===== -->
+        <text name="propertyBorders_color_cyan" text="" />
+        <text name="propertyBorders_color_green" text="" />
+        <text name="propertyBorders_color_red" text="" />
+        <text name="propertyBorders_color_yellow" text="" />
+        <text name="propertyBorders_color_orange" text="" />
+        <text name="propertyBorders_color_purple" text="" />
+        <text name="propertyBorders_color_white" text="" />
+    </texts>
+</l10n>

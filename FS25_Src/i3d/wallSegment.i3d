@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+    wallSegment.i3d  -  Billboard quad from ads.i3d used as template for
+    property-border ribbon segments.
+
+    Uses an external binary shapes file (ads.i3d.shapes) for the quad
+    geometry, with glowShader additive_colorScale variation and a solid
+    white Emissivemap so the colour is fully controlled by the colorScale
+    shader parameter at runtime.
+
+    At runtime the Lua code clones this shape once per sub-segment,
+    rotates around X to stand it up vertically (the billboard is XZ-flat),
+    rotates around Y for heading, and scales to match segment length and
+    wall height.
+-->
+<i3D name="wallSegment" version="1.6"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation="http://i3d.giants.ch/schema/i3d-1.6.xsd">
+
+  <Files>
+    <File fileId="1" filename="solidWhite.png" />
+    <File fileId="2" filename="$data/shaders/glowShader.xml" />
+  </Files>
+
+  <Materials>
+    <Material name="borderWallMat" materialId="1" specularColor="0 0 0"
+              alphaBlending="true" customShaderId="2"
+              customShaderVariation="additive_colorScale">
+      <CustomParameter name="colorScale" value="0 1 0"/>
+      <CustomParameter name="lightControl" value="4"/>
+      <Emissivemap fileId="1"/>
+    </Material>
+  </Materials>
+
+  <Shapes externalShapesFile="wallSegment.i3d.shapes">
+  </Shapes>
+
+  <Scene>
+    <Shape name="wallQuad" shapeId="1" castsShadows="false"
+           receiveShadows="false" materialIds="1" clipDistance="500"
+           nodeId="1"/>
+  </Scene>
+</i3D>

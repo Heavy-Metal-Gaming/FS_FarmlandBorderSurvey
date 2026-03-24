@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10n>
+    <texts>
+        <!-- Input action labels (FS25 requires input_ prefix for action names) -->
+        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Toggle Property Borders" />
+
+        <!-- Toggle notifications -->
+        <text name="propertyBorders_enabled" text="Property borders: ON" />
+        <text name="propertyBorders_disabled" text="Property borders: OFF" />
+
+        <!-- Settings dialog -->
+        <text name="propertyBorders_settingsTitle" text="Property Border Settings" />
+        <text name="propertyBorders_renderMode" text="Render Mode" />
+        <text name="propertyBorders_renderMode_mesh" text="Mesh" />
+        <text name="propertyBorders_renderMode_debug" text="Debug Lines" />
+        <text name="propertyBorders_height" text="Border Height" />
+        <text name="propertyBorders_color" text="Border Color" />
+        <text name="propertyBorders_chooseColor" text="Choose Color..." />
+        <text name="propertyBorders_apply" text="Apply" />
+        <text name="propertyBorders_cancel" text="Cancel" />
+
+        <!-- Status messages -->
+        <text name="propertyBorders_scanning" text="Scanning farmland borders..." />
+        <text name="propertyBorders_scanComplete" text="Found borders for %d farmlands" />
+        <text name="propertyBorders_noFarmlands" text="No owned farmlands found" />
+        <text name="propertyBorders_settingsApplied" text="Border settings applied" />
+        <text name="propertyBorders_colorApplied" text="Border color updated" />
+
+        <!-- Error messages -->
+        <text name="propertyBorders_error_noFarmlandManager" text="Property Borders: FarmlandManager not available" />
+        <text name="propertyBorders_error_materialLoadFailed" text="Property Borders: Failed to load glow material, falling back to debug lines" />
+        <text name="propertyBorders_error_meshFallback" text="Property Borders: Mesh creation failed, using debug line mode" />
+
+        <!-- Display scope -->
+        <text name="propertyBorders_showOwned" text="Show Borders" />
+        <text name="propertyBorders_showOwnedOnly" text="Owned Only" />
+        <text name="propertyBorders_showContracted" text="Owned + Contracted" />
+        <text name="propertyBorders_showAll" text="All Farmlands" />
+
+        <!-- Contract borders -->
+        <text name="propertyBorders_contractBorderInfo" text="Showing borders for %d contracted farmlands" />
+        <text name="propertyBorders_contractColor" text="Contract Border Color" />
+        <text name="propertyBorders_contractColorDefault" text="Using contract highlight color" />
+
+        <!-- Colorblind mode -->
+        <text name="propertyBorders_colorblindMode" text="Colorblind Mode" />
+        <text name="propertyBorders_colorblindActive" text="Colorblind-safe colors active" />
+        <text name="propertyBorders_colorblindInactive" text="Standard colors active" />
+
+        <!-- Height labels -->
+        <!-- %s = pre-formatted number (decimal/thousands separators handled by engine i18n) -->
+        <text name="propertyBorders_heightUnit" text="%s m" />
+
+        <!-- Settings menu labels -->
+        <text name="propertyBorders_setting_visible" text="Show Borders" />
+        <text name="propertyBorders_setting_renderMode" text="Render Mode" />
+        <text name="propertyBorders_setting_displayScope" text="Display Scope" />
+        <text name="propertyBorders_setting_height" text="Border Height" />
+        <text name="propertyBorders_setting_colorPreset" text="Border Color" />
+
+        <!-- Settings menu tooltips -->
+        <text name="propertyBorders_tooltip_visible" text="Toggle the visibility of property border lines on/off." />
+        <text name="propertyBorders_tooltip_renderMode" text="Debug Lines are always visible on top. Mesh creates 3D geometry." />
+        <text name="propertyBorders_tooltip_displayScope" text="Which farmlands to show borders for." />
+        <text name="propertyBorders_tooltip_height" text="Height above the terrain for border lines." />
+        <text name="propertyBorders_tooltip_colorPreset" text="Choose the color for border lines." />
+
+        <!-- Color preset names -->
+        <text name="propertyBorders_color_cyan" text="Cyan" />
+        <text name="propertyBorders_color_green" text="Green" />
+        <text name="propertyBorders_color_red" text="Red" />
+        <text name="propertyBorders_color_yellow" text="Yellow" />
+        <text name="propertyBorders_color_orange" text="Orange" />
+        <text name="propertyBorders_color_purple" text="Purple" />
+        <text name="propertyBorders_color_white" text="White" />
+    </texts>
+</l10n>

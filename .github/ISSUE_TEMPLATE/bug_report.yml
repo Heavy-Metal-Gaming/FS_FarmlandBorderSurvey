@@ -1,0 +1,90 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill in the details below so we can reproduce and fix it.
+
+  - type: input
+    id: version
+    attributes:
+      label: Mod Version
+      description: The version of Property Borders you're using (e.g., 1.0.0.0)
+      placeholder: "1.0.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: fs_version
+    attributes:
+      label: Farming Simulator Version
+      options:
+        - FS25
+        - FS28
+    validations:
+      required: true
+
+  - type: dropdown
+    id: multiplayer
+    attributes:
+      label: Game Mode
+      options:
+        - Single-player
+        - Multiplayer (host)
+        - Multiplayer (client)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what happened vs. what you expected.
+      placeholder: |
+        What happened:
+        ...
+
+        What I expected:
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to trigger the bug.
+      placeholder: |
+        1. Load savegame with owned farmland
+        2. Press RAlt+L to toggle borders
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log Output
+      description: Paste any relevant lines from the game log (`log.txt`).
+      render: text
+    validations:
+      required: false
+
+  - type: input
+    id: map
+    attributes:
+      label: Map Name
+      description: Which map were you playing on?
+      placeholder: "e.g., Elm Creek, Haut-Beyleron"
+    validations:
+      required: false
+
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other Active Mods
+      description: List any other mods that were active (helps rule out conflicts).
+    validations:
+      required: false

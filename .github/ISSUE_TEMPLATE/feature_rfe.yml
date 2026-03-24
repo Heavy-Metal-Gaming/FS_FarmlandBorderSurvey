@@ -1,0 +1,59 @@
+name: Feature Request
+description: Propose a new feature or enhancement
+labels: ["enhancement", "rfe"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Important:** New features require maintainer approval before a pull request will be accepted.
+        Once approved, the issue will be labeled `approved`. Do not start implementation until then.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this feature solve, or what use case does it address?
+      placeholder: "I often find myself needing to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature or change you'd like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any other approaches? Why is this one preferred?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: What area of the mod does this affect?
+      options:
+        - Rendering / visuals
+        - Settings / GUI
+        - Controls / input
+        - Multiplayer / networking
+        - Performance
+        - Translations / i18n
+        - Build / CI / tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Screenshots, mockups, references to other mods, or anything else that helps explain the request.
+    validations:
+      required: false

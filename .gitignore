@@ -1,0 +1,28 @@
+# Build output
+dist/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Temp / logs
+*.log
+*.bak
+*.tmp
+
+# Design doc (not committed)
+PLAN.md
+
+# Extracted background template (keep locally)
+modIcon_background.png
+
+# Temp scratch files
+temp_*.lua
