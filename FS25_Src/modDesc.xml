@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<modDesc descVersion="90">
+<modDesc descVersion="105">
     <title>
         <en>Property Borders</en>
         <de>Grundstücksgrenzen</de>
@@ -7,24 +7,10 @@
     <description>
         <en><![CDATA[Displays faint glowing border lines around your owned farmlands in the 3D world.
 
-Toggle borders on/off with RAlt+L.
-
-Features:
-- Choose border color, height, and render mode
-- Two render modes: Mesh (persistent 3D geometry) and Debug Lines (overlay)
-- Borders update automatically when you buy or sell land
-- Multiplayer compatible
-- Fully translatable (add l10n/l10n_XX.xml for your language)]]></en>
+Toggle borders on/off with RAlt+L. Choose border color, height, and render mode in the mod settings. Works in single and multiplayer. Settings are saved per-savegame.]]></en>
         <de><![CDATA[Zeigt schwach leuchtende Grenzlinien um Ihre eigenen Grundstücke in der 3D-Welt an.
 
-Grenzen ein-/ausschalten mit RAlt+L.
-
-Funktionen:
-- Wählen Sie Grenzfarbe, Höhe und Darstellungsmodus
-- Zwei Darstellungsmodi: Mesh (persistente 3D-Geometrie) und Debug-Linien (Overlay)
-- Grenzen aktualisieren sich automatisch beim Kauf oder Verkauf von Land
-- Mehrspieler-kompatibel
-- Vollständig übersetzbar (fügen Sie l10n/l10n_XX.xml für Ihre Sprache hinzu)]]></de>
+Grenzen ein-/ausschalten mit RAlt+L. Grenzfarbe, Höhe und Darstellungsmodus in den Mod-Einstellungen wählen. Funktioniert im Einzel- und Mehrspielermodus. Einstellungen werden pro Spielstand gespeichert.]]></de>
     </description>
     <author>Heavy Metal Gaming</author>
     <version>1.0.0.0</version>
@@ -35,6 +21,10 @@ Funktionen:
     <extraSourceFiles>
         <sourceFile filename="scripts/PropertyBorders.lua" />
     </extraSourceFiles>
+
+    <extraContent>
+        <content filename="i3d/glowMaterialSource.i3d" />
+    </extraContent>
 
     <l10n filenamePrefix="l10n/l10n" />
 

@@ -95,7 +95,7 @@ function Invoke-Build {
     New-Item -ItemType Directory -Path $staging -Force | Out-Null
 
     # Copy mod contents (exclude dev-only files)
-    $excludePatterns = @("*.bak", "*.log")
+    $excludePatterns = @("*.bak", "*.log", "icon_PropertyBorders.png")
 
     Get-ChildItem -Path $srcDir -Force | ForEach-Object {
         $skip = $false

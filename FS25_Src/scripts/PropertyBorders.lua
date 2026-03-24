@@ -772,10 +772,13 @@ function PropertyBorders.drawNotification(text, alpha)
         PropertyBorders.notifBgRight:render()
     end
 
+    -- Vertically center text inside the box (renderText Y = baseline)
+    local textY = posY - padY + (fontSize + padY * 2) * 0.5 - fontSize * 0.4
+
     setTextAlignment(RenderText.ALIGN_CENTER)
     setTextBold(false)
     setTextColor(textR, textG, textB, alpha)
-    renderText(0.5, posY, fontSize, text)
+    renderText(0.5, textY, fontSize, text)
     setTextAlignment(RenderText.ALIGN_LEFT)
     setTextColor(1, 1, 1, 1)
 end

@@ -11,7 +11,7 @@
      xsi:noNamespaceSchemaLocation="http://i3d.giants.ch/schema/i3d-1.6.xsd">
 
   <Files>
-    <File fileId="1" filename="solidWhite.png" />
+    <File fileId="1" filename="solidWhite.dds" />
     <File fileId="2" filename="$data/shaders/glowShader.xml" />
   </Files>
 
