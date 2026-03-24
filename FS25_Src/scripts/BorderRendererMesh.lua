@@ -21,7 +21,11 @@ BorderRendererMesh.GLOW_CAP_HEIGHT = 0.06
 
 --- Maximum length of a single wall sub-segment (meters).
 --- Shorter = smoother terrain following but more draw calls.
-BorderRendererMesh.MAX_SUB_SEGMENT_LENGTH = 4.0
+BorderRendererMesh.MAX_SUB_SEGMENT_LENGTH = 2.0
+
+--- Extra depth pushed below the lower ground point to ensure no gaps
+--- between adjacent sub-segments on sloped terrain (meters).
+BorderRendererMesh.GROUND_OVERLAP = 0.15
 
 ---------------------------------------------------------------------------
 -- Initialisation
@@ -198,9 +202,19 @@ local function cloneQuad(parentNode, r, g, b, glowIntensity)
     return c
 end
 
+--- Clone a double-sided wall (two quads facing opposite directions).
+--- Returns frontNode, backNode  (either may be nil on failure).
+local function cloneQuadDoubleSided(parentNode, r, g, b, glowIntensity)
+    local front = cloneQuad(parentNode, r, g, b, glowIntensity)
+    local back  = cloneQuad(parentNode, r, g, b, glowIntensity)
+    return front, back
+end
+
 --- Position / rotate / scale a wall clone so it forms a vertical wall
 --- between two world-space XZ points, from yBottom to yTop.
-local function placeWall(node, x1, z1, x2, z2, yBottom, yTop)
+--- If backNode is provided, it is placed identically but rotated 180°
+--- around Y so the wall is visible from both sides.
+local function placeWall(node, x1, z1, x2, z2, yBottom, yTop, backNode)
     local dx = x2 - x1
     local dz = z2 - z1
     local segLen = math.sqrt(dx * dx + dz * dz)
@@ -208,6 +222,7 @@ local function placeWall(node, x1, z1, x2, z2, yBottom, yTop)
 
     if segLen < 0.001 or wallH < 0.001 then
         setVisibility(node, false)
+        if backNode then setVisibility(backNode, false) end
         return
     end
 
@@ -220,14 +235,23 @@ local function placeWall(node, x1, z1, x2, z2, yBottom, yTop)
     setTranslation(node, mx, midY, mz)
 
     if BorderRendererMesh.needsXRotation then
-        -- XZ-flat quad: rotate 90° around X to stand up, then Y for heading.
-        -- Scale X = segment length, Z = wall height (Z becomes Y after rotation).
         setRotation(node, math.rad(90), ry, 0)
         setScale(node, segLen, 1, wallH)
     else
-        -- Already vertical (XY plane): just rotate around Y.
         setRotation(node, 0, ry, 0)
         setScale(node, segLen, wallH, 1)
+    end
+
+    -- Back face: same position/scale, rotated 180° around Y
+    if backNode then
+        setTranslation(backNode, mx, midY, mz)
+        if BorderRendererMesh.needsXRotation then
+            setRotation(backNode, math.rad(90), ry + math.pi, 0)
+            setScale(backNode, segLen, 1, wallH)
+        else
+            setRotation(backNode, 0, ry + math.pi, 0)
+            setScale(backNode, segLen, wallH, 1)
+        end
     end
 end
 
@@ -264,6 +288,7 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
     local terrainNode = g_currentMission.terrainRootNode
     local heightOffset = PropertyBorders.settings.height
     local maxSubLen = BorderRendererMesh.MAX_SUB_SEGMENT_LENGTH
+    local overlap = BorderRendererMesh.GROUND_OVERLAP
 
     for _, polyline in ipairs(polylines) do
         for i = 1, #polyline - 1 do
@@ -290,26 +315,27 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
                 -- Sample terrain at each sub-segment endpoint
                 local ground1 = getTerrainHeightAtWorldPos(terrainNode, sx1, 0, sz1)
                 local ground2 = getTerrainHeightAtWorldPos(terrainNode, sx2, 0, sz2)
-                local avgGround = math.min(ground1, ground2)
-                local avgTop = math.max(ground1, ground2) + heightOffset
+                -- Use per-endpoint ground with overlap so adjacent segments merge smoothly
+                local lowestGround = math.min(ground1, ground2) - overlap
+                local highestTop   = math.max(ground1, ground2) + heightOffset
 
-                -- Body wall
-                local bodyNode = cloneQuad(farmTG, bodyR, bodyG, bodyB, bodyGlow)
-                if bodyNode then
-                    placeWall(bodyNode, sx1, sz1, sx2, sz2, avgGround, avgTop)
-                    totalClones = totalClones + 1
+                -- Body wall (double-sided)
+                local bodyFront, bodyBack = cloneQuadDoubleSided(farmTG, bodyR, bodyG, bodyB, bodyGlow)
+                if bodyFront then
+                    placeWall(bodyFront, sx1, sz1, sx2, sz2, lowestGround, highestTop, bodyBack)
+                    totalClones = totalClones + 2
                     if not loggedFirst then
                         loggedFirst = true
                         Logging.info("PropertyBorders: first sub-seg (%.1f,%.1f)-(%.1f,%.1f) ground=%.1f top=%.1f node=%s needsXRot=%s",
-                            sx1, sz1, sx2, sz2, avgGround, avgTop, tostring(bodyNode), tostring(BorderRendererMesh.needsXRotation))
+                            sx1, sz1, sx2, sz2, lowestGround, highestTop, tostring(bodyFront), tostring(BorderRendererMesh.needsXRotation))
                     end
                 end
 
-                -- Glow cap
-                local capNode = cloneQuad(farmTG, capR, capG, capB, capGlow)
-                if capNode then
-                    placeWall(capNode, sx1, sz1, sx2, sz2, avgTop - capH, avgTop + capH)
-                    totalClones = totalClones + 1
+                -- Glow cap (double-sided)
+                local capFront, capBack = cloneQuadDoubleSided(farmTG, capR, capG, capB, capGlow)
+                if capFront then
+                    placeWall(capFront, sx1, sz1, sx2, sz2, highestTop - capH, highestTop + capH, capBack)
+                    totalClones = totalClones + 2
                 end
             end
 
