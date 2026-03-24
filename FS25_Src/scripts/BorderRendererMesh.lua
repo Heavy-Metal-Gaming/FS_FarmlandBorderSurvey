@@ -235,7 +235,7 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
             local dx = p2.x - p1.x
             local dz = p2.z - p1.z
             local fullLen = math.sqrt(dx * dx + dz * dz)
-            if fullLen < 0.01 then goto continue end
+            if fullLen >= 0.01 then
 
             -- Number of sub-segments for this edge
             local numSubs = math.max(1, math.ceil(fullLen / maxSubLen))
@@ -275,7 +275,7 @@ function BorderRendererMesh.createForFarmland(farmlandId, polylines, color, stri
                 end
             end
 
-            ::continue::
+            end -- fullLen >= 0.01
         end
     end
 
