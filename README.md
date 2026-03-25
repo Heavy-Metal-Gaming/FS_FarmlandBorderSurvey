@@ -85,9 +85,11 @@ If `--fs_ver` is omitted, the scripts auto-detect the highest-numbered `FS*_Src`
 ```
 FS_FarmlandBorderSurvey/               — Repo root
 ├── README.md                          — This file
-├── PLAN.md                            — Technical design document (not in releases)
 ├── build.sh                           — Build / release script (bash)
 ├── build.ps1                          — Build / release script (PowerShell)
+├── docs/
+│   ├── CONTRIBUTING.md                — Contributing guidelines
+│   └── ORIGINAL-IMPLEMENTATION-PLAN.md — Technical design document
 ├── .github/
 │   └── workflows/
 │       └── release.yml                — CI: build + GitHub Release on release tags
@@ -151,6 +153,11 @@ Settings (color, height, render mode, visibility) are synced from server to all 
 
 - Farming Simulator 25 (PC)
 - GIANTS Engine 10+
+
+## Appendix
+
+- [Original Implementation Plan](docs/ORIGINAL-IMPLEMENTATION-PLAN.md) — Technical design document from initial development
+- [Contributing Guidelines](docs/CONTRIBUTING.md)
 
 ## Reporting Bugs
 

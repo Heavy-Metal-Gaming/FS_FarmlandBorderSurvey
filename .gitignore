@@ -18,9 +18,6 @@ desktop.ini
 *.bak
 *.tmp
 
-# Design doc (not committed)
-PLAN.md
-
 # Extracted background template (keep locally)
 modIcon_background.png
 
