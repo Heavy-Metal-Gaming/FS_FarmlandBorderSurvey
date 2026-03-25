@@ -1,4 +1,4 @@
-# FS25 Property Borders
+# Farmland Border Survey
 
 Displays faint glowing border lines around your owned and contracted farmlands in the 3D world of **Farming Simulator 25**.
 
@@ -27,7 +27,7 @@ Bindings can be changed in-game via **Settings → Controls**.
 ### From GitHub Releases (recommended)
 
 1. Go to the [Releases](../../releases) page.
-2. Download `FS25_PropertyBorders.zip` from the latest release (or a pre-release for alpha/beta builds).
+2. Download `FS25_FarmlandBorderSurvey.zip` from the latest release (or a pre-release for alpha/beta builds).
 3. Place the zip (do **not** extract it) into your FS25 mods directory:
    - **Windows**: `%USERPROFILE%\Documents\My Games\FarmingSimulator2025\mods\`
    - **macOS**: `~/Library/Application Support/FarmingSimulator2025/mods/`
@@ -35,7 +35,7 @@ Bindings can be changed in-game via **Settings → Controls**.
 
 ### From GIANTS ModHub
 
-Official stable releases are also published to the [GIANTS ModHub](https://www.farming-simulator.com/mods.php). Search for **Property Borders** and install directly from the in-game ModHub browser.
+Official stable releases are also published to the [GIANTS ModHub](https://www.farming-simulator.com/mods.php). Search for **Farmland Border Survey** and install directly from the in-game ModHub browser.
 
 ### From Source (development)
 
@@ -48,13 +48,13 @@ Official stable releases are also published to the [GIANTS ModHub](https://www.f
 ```bash
 # Linux / macOS
 ./build.sh build                        # builds for latest FS version detected
-./build.sh build --fs_ver 25            # builds FS25_PropertyBorders.zip
-./build.sh build --fs_ver 28            # builds FS28_PropertyBorders.zip
+./build.sh build --fs_ver 25            # builds FS25_FarmlandBorderSurvey.zip
+./build.sh build --fs_ver 28            # builds FS28_FarmlandBorderSurvey.zip
 
 # Windows (PowerShell)
 .\build.ps1 build                       # builds for latest FS version detected
-.\build.ps1 build --fs_ver 25           # builds FS25_PropertyBorders.zip
-.\build.ps1 build --fs_ver 28           # builds FS28_PropertyBorders.zip
+.\build.ps1 build --fs_ver 25           # builds FS25_FarmlandBorderSurvey.zip
+.\build.ps1 build --fs_ver 28           # builds FS28_FarmlandBorderSurvey.zip
 ```
 
 Note: `build` always produces a single zip. To build multiple versions, run it once per version or use `release` which builds all specified versions.
@@ -84,7 +84,7 @@ If `--fs_ver` is omitted, the scripts auto-detect the highest-numbered `FS*_Src`
 ## Repository Structure
 
 ```
-FS_PropertyBorders/                    — Repo root
+FS_FarmlandBorderSurvey/               — Repo root
 ├── README.md                          — This file
 ├── PLAN.md                            — Technical design document (not in releases)
 ├── build.sh                           — Build / release script (bash)
@@ -93,18 +93,16 @@ FS_PropertyBorders/                    — Repo root
 │   └── workflows/
 │       └── release.yml                — CI: build + GitHub Release on release tags
 ├── dist/                              — Build output (git-ignored)
-│   └── FS25_PropertyBorders.zip
+│   └── FS25_FarmlandBorderSurvey.zip
 └── FS25_Src/                          — FS25 mod source
     ├── modDesc.xml
-    ├── icon.dds
+    ├── icon_FarmlandBorderSurvey.dds
     ├── i3d/
     │   └── glowMaterial.i3d
     ├── l10n/
     │   ├── l10n_en.xml
     │   ├── l10n_de.xml
     │   └── l10n_template.xml
-    ├── gui/
-    │   └── PropertyBordersSettingsDialog.xml
     └── scripts/
         ├── PropertyBorders.lua
         ├── BorderScanner.lua
