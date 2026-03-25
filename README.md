@@ -18,9 +18,8 @@ Displays faint glowing border lines around your owned and contracted farmlands i
 | Action | Default Binding | Description |
 |--------|----------------|-------------|
 | Toggle borders | `RAlt + L` | Show / hide border lines |
-| Open settings | `RAlt + K` | Color, height, render mode, display scope |
 
-Bindings can be changed in-game via **Settings → Controls**.
+Binding can be changed in-game via **Settings → Controls**.
 
 ## Installation
 
