@@ -17,7 +17,7 @@ jobs:
       fs_versions: ${{ steps.meta.outputs.fs_versions }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Parse tag metadata
         id: meta
@@ -44,7 +44,7 @@ jobs:
         fs_version: ${{ fromJson(needs.prepare.outputs.fs_versions) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set mod name
         id: mod
@@ -60,7 +60,7 @@ jobs:
           ./build.sh build "${{ matrix.fs_version }}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.mod.outputs.mod_name }}
           path: dist/${{ steps.mod.outputs.mod_name }}.zip
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: artifacts
 
