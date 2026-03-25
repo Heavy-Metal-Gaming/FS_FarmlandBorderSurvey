@@ -2,14 +2,14 @@
 <l10n>
     <texts>
         <!-- Input action labels (FS25 requires input_ prefix for action names) -->
-        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Toggle Property Borders" />
+        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Toggle Farmland Border Survey" />
 
         <!-- Toggle notifications -->
-        <text name="propertyBorders_enabled" text="Property borders: ON" />
-        <text name="propertyBorders_disabled" text="Property borders: OFF" />
+        <text name="propertyBorders_enabled" text="Farmland borders: ON" />
+        <text name="propertyBorders_disabled" text="Farmland borders: OFF" />
 
         <!-- Settings dialog -->
-        <text name="propertyBorders_settingsTitle" text="Property Border Settings" />
+        <text name="propertyBorders_settingsTitle" text="Farmland Border Survey" />
         <text name="propertyBorders_renderMode" text="Render Mode" />
         <text name="propertyBorders_renderMode_mesh" text="Mesh" />
         <text name="propertyBorders_renderMode_debug" text="Debug Lines" />

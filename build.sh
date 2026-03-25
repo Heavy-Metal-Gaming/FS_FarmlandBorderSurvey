@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build / release script for FS Property Borders mod.
+# Build / release script for FS Farmland Border Survey mod.
 #
 # Usage:
 #   ./build.sh build   [--fs_ver VER]          Build the zip artifact
@@ -12,7 +12,7 @@
 #
 # Examples:
 #   ./build.sh build                              # builds for latest FS version
-#   ./build.sh build --fs_ver 28                  # builds FS28_PropertyBorders.zip
+#   ./build.sh build --fs_ver 28                  # builds FS28_FarmlandBorderSurvey.zip
 #   ./build.sh release 1.0.0.0                    # release for latest FS version
 #   ./build.sh release 1.0.0.0 --fs_ver 25,28     # release for both FS25 and FS28
 #   ./build.sh release 1.0.0.0-beta.1 --fs_ver 25
@@ -66,7 +66,7 @@ usage() {
 do_build() {
     local fs_ver="$1"
     local src_dir="${SCRIPT_DIR}/FS${fs_ver}_Src"
-    local mod_name="FS${fs_ver}_PropertyBorders"
+    local mod_name="FS${fs_ver}_FarmlandBorderSurvey"
     local out_dir="${SCRIPT_DIR}/dist"
     local zip_path="${out_dir}/${mod_name}.zip"
 

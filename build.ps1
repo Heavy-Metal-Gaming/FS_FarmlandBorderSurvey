@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Build / release script for FS Property Borders mod.
+    Build / release script for FS Farmland Border Survey mod.
 .DESCRIPTION
     Builds a distributable .zip mod artifact, or creates a release tag to trigger CI.
 
@@ -70,7 +70,7 @@ function Invoke-Build {
     param([string]$FsVer)
 
     $srcDir  = Join-Path $ScriptDir "FS${FsVer}_Src"
-    $modName = "FS${FsVer}_PropertyBorders"
+    $modName = "FS${FsVer}_FarmlandBorderSurvey"
     $outDir  = Join-Path $ScriptDir "dist"
     $zipPath = Join-Path $outDir "${modName}.zip"
 
@@ -95,7 +95,7 @@ function Invoke-Build {
     New-Item -ItemType Directory -Path $staging -Force | Out-Null
 
     # Copy mod contents (exclude dev-only files)
-    $excludePatterns = @("*.bak", "*.log", "icon_PropertyBorders.png", "solidWhite.png")
+    $excludePatterns = @("*.bak", "*.log", "icon_FarmlandBorderSurvey.png", "solidWhite.png")
 
     Get-ChildItem -Path $srcDir -Force | ForEach-Object {
         $skip = $false

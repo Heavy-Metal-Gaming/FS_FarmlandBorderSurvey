@@ -26,3 +26,6 @@ modIcon_background.png
 
 # Temp scratch files
 temp_*.lua
+
+# Screenshots
+FS25_Src/screenshots/

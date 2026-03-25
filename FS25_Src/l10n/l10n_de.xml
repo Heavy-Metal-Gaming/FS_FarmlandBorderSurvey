@@ -2,14 +2,14 @@
 <l10n>
     <texts>
         <!-- Eingabeaktionen (FS25 erfordert input_ Präfix für Aktionsnamen) -->
-        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Grundstücksgrenzen umschalten" />
+        <text name="input_PROPERTY_BORDERS_TOGGLE" text="Grundstücksgrenzvermessung umschalten" />
 
         <!-- Umschalt-Benachrichtigungen -->
         <text name="propertyBorders_enabled" text="Grundstücksgrenzen: EIN" />
         <text name="propertyBorders_disabled" text="Grundstücksgrenzen: AUS" />
 
         <!-- Einstellungsdialog -->
-        <text name="propertyBorders_settingsTitle" text="Grundstücksgrenzen-Einstellungen" />
+        <text name="propertyBorders_settingsTitle" text="Grundstücksgrenzvermessung" />
         <text name="propertyBorders_renderMode" text="Darstellungsmodus" />
         <text name="propertyBorders_renderMode_mesh" text="Mesh" />
         <text name="propertyBorders_renderMode_debug" text="Debug-Linien" />

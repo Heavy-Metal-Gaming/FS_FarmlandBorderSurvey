@@ -737,6 +737,7 @@ end
 function PropertyBorders.drawNotification(text, alpha)
     local fontSize = 0.028
     local posY = 0.96   -- near the top of the screen
+    local padY   = 0.010
 
     -- Near-white slightly gray text color
     local textR, textG, textB = 0.92, 0.92, 0.92
@@ -748,7 +749,6 @@ function PropertyBorders.drawNotification(text, alpha)
         a = a * alpha
 
         local padX   = 0.018
-        local padY   = 0.010
         local capW   = 0.005   -- left/right cap width
         local boxW   = textWidth + padX * 2
         local boxH   = fontSize + padY * 2

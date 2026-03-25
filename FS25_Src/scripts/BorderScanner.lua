@@ -271,8 +271,14 @@ function BorderScanner.toWorldCoords(polylines, heightOffset)
     for i, polyline in ipairs(polylines) do
         local worldPoly = {}
         for j, pt in ipairs(polyline) do
-            local wx = (pt.x - mapW * 0.5) * scaleX
-            local wz = (pt.z - mapH * 0.5) * scaleZ
+            -- GIANTS pixel (x,z) is centered at integer coords; its cell spans
+            -- (x-0.5, z-0.5) to (x+0.5, z+0.5).  Our edge detection places
+            -- edges at integer bitmap coords (e.g. x+1 for the right edge of
+            -- pixel x), but the true cell boundary is at x+0.5.  Subtracting
+            -- 0.5 from every coordinate realigns our edges with the game's
+            -- pixel-cell boundaries (confirmed via FarmlandManager source).
+            local wx = (pt.x - 0.5 - mapW * 0.5) * scaleX
+            local wz = (pt.z - 0.5 - mapH * 0.5) * scaleZ
             local wyGround = getTerrainHeightAtWorldPos(terrainNode, wx, 0, wz)
             local wyTop = wyGround + heightOffset
 

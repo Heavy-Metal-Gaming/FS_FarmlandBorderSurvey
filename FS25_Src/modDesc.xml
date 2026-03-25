@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <modDesc descVersion="107">
     <title>
-        <en>Property Borders</en>
-        <de>Grundstücksgrenzen</de>
+        <en>Farmland Border Survey</en>
+        <de>Grundstücksgrenzvermessung</de>
     </title>
     <description>
         <en><![CDATA[Displays faint glowing border lines around your owned farmlands in the 3D world.
@@ -14,7 +14,7 @@ Grenzen ein-/ausschalten mit RAlt+L. Grenzfarbe, Höhe und Darstellungsmodus in 
     </description>
     <author>Heavy Metal Gaming</author>
     <version>1.0.0.0</version>
-    <iconFilename>icon_PropertyBorders.dds</iconFilename>
+    <iconFilename>icon_FarmlandBorderSurvey.dds</iconFilename>
 
     <multiplayer supported="true" />
 
