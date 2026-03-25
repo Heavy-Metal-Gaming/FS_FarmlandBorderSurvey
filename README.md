@@ -1,10 +1,10 @@
 # Farmland Border Survey
 
-Displays faint glowing border lines around your owned and contracted farmlands in the 3D world of **Farming Simulator 25**.
+Displays softly glowing ribbon walls along the boundaries of your owned and contracted farmlands in the 3D world of **Farming Simulator 25**.
 
 ## Features
 
-- **Two render modes**: Persistent 3D mesh geometry or debug-line overlay
+- **Two render modes**: Persistent 3D ribbon walls (mesh) or debug-line overlay
 - **Customizable appearance**: Choose border color, height above terrain, and render mode
 - **Display scope**: Show borders for owned farmlands only, owned + contracted, or all farmlands
 - **Contract awareness**: Optionally highlights borders of farmlands where you have active contracts, using a distinct color
@@ -17,7 +17,7 @@ Displays faint glowing border lines around your owned and contracted farmlands i
 
 | Action | Default Binding | Description |
 |--------|----------------|-------------|
-| Toggle borders | `RAlt + L` | Show / hide border lines |
+| Toggle borders | `RAlt + L` | Show / hide border ribbons |
 
 Binding can be changed in-game via **Settings → Controls**.
 
@@ -115,12 +115,16 @@ FS_FarmlandBorderSurvey/               — Repo root
             └── PropertyBordersSettingsInitialEvent.lua
 ```
 
+## Visual Description
+
+Borders appear as semi-transparent vertical ribbons (default 0.3 m tall) that follow the terrain contour, topped by a bright glowing edge. In mesh mode, the ribbons are real 3D geometry with an additive glow shader; in debug mode, they are approximated with layered horizontal lines that fade from dim at ground level to bright at the top.
+
 ## How It Works
 
 1. **Scanning** — `BorderScanner` reads the farmland density bitmap (`infoLayer_farmlands.grle`) pixel by pixel within each farmland's bounding box. Where adjacent pixels have different IDs, a border edge is recorded.
 2. **Chaining** — Edge segments are connected into continuous polylines via endpoint matching.
 3. **Simplification** — Douglas-Peucker reduces vertex count (~90% reduction) while preserving shape.
-4. **Rendering** — Polylines are drawn as either thin 3D quad strips (`createPlaneShapeFrom2DContour`) or immediate-mode debug lines (`drawDebugLine`).
+4. **Rendering** — Polylines are drawn as either terrain-following vertical ribbon walls with a glowing top edge (mesh mode) or immediate-mode debug lines with a ribbon-like horizontal fill (debug mode).
 
 ## Defaults
 
@@ -145,7 +149,7 @@ Settings (color, height, render mode, visibility) are synced from server to all 
 
 ## Known Limitations
 
-- Mesh-mode border strips are flat and may not perfectly follow steep terrain. Increase the height offset on hilly maps.
+- Mesh-mode ribbon walls are vertical quads and may not perfectly follow steep terrain. Increase the height offset on hilly maps.
 - Border scanning on first load may take a few seconds if you own many farmlands.
 - The glow material (`glowMaterial.i3d`) may need tuning in GIANTS Editor for different visual preferences.
 
@@ -170,7 +174,7 @@ If you encounter a bug, please [open a Bug Report](../../issues/new?template=bug
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting bug fixes, translations, and feature requests.
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on submitting bug fixes, translations, and feature requests.
 
 ## License
 
